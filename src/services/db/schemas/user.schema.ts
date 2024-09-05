@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import { ObjectId } from 'mongodb'
 
-const { Schema } = mongoose
+const { Schema, model } = mongoose
 
 export type TUser = {
   _id: ObjectId
@@ -79,4 +79,5 @@ export const userSchema = new Schema({
   }
 })
 
-export default mongoose.model('User', userSchema)
+const User = mongoose.models?.User || model('User', userSchema)
+export default User
