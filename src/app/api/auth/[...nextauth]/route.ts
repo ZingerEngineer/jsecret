@@ -27,6 +27,7 @@ export const nextAuthOptions = {
     // verifyRequest: '/auth/verify-request', // (used for check email message)
     // newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
   },
+
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -86,7 +87,8 @@ export const nextAuthOptions = {
       clientId: process.env.GITHUB_APP_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string
     })
-  ]
+  ],
+  secret: process.env.JWT_SECRET
 }
 const handler = NextAuth(nextAuthOptions)
 
