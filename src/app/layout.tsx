@@ -4,6 +4,8 @@ import './globals.css'
 import NextAuthProvider from './providers/nextAuthProvider'
 import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from './api/auth/[...nextauth]/route'
+import { dbConnect } from '@/services/db'
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -16,6 +18,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  await dbConnect()
   const session = await getServerSession(nextAuthOptions)
   return (
     <html lang="en">
