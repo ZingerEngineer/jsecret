@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-export async function connect() {
+export async function dbConnect() {
   const dbURL = process.env.MONGODB_URL_SECRET
 
   if (!dbURL) {
