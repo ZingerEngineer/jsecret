@@ -1,10 +1,11 @@
-import mongoose from 'mongoose'
+import mongoose, { Model } from 'mongoose'
 import { ObjectId } from 'mongodb'
 
 const { Schema, model } = mongoose
 
 export type TUser = {
   _id: ObjectId
+  userGitHubId: string
   role: number
   username: string
   email: string
@@ -79,5 +80,7 @@ export const userSchema = new Schema({
   }
 })
 
-const User = mongoose.models?.User || model('User', userSchema)
+const User =
+  (mongoose.models.User as Model<TUser>) || model<TUser>('User', userSchema)
+
 export default User
