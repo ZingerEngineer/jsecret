@@ -3,7 +3,9 @@
 import InputComponent from '@/components/InputComponent'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 export default function LoginForm() {
+  const router = useRouter()
   const { data: session } = useSession()
   const [email, setEmail] = useState('')
   const [value, setValue] = useState('')
@@ -21,6 +23,14 @@ export default function LoginForm() {
         <button onClick={() => signOut()}>Sign out</button>
       </div>
     )
+  }
+  const doLogin = async () => {
+    console.log(email, value)
+    const res = await signIn('credentials', { email: email, password: value })
+    if (res) {
+      console.log(res)
+      router.push('/')
+    }
   }
   return (
     <div className="w-full h-full flex justify-center items-center">
@@ -55,7 +65,7 @@ export default function LoginForm() {
           }}
         />
         <button
-          onClick={() => signIn()}
+          onClick={doLogin}
           className="w-full px-6 py-3"
         >
           Login
