@@ -2,12 +2,11 @@
 
 import InputComponent from '@/components/InputComponent'
 import { Dispatch, SetStateAction, useState } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import User from '@/services/db/schemas/user.schema'
 export default function RegisterForm() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
-  const [value, setValue] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -15,12 +14,26 @@ export default function RegisterForm() {
   ) => {
     setState(event.target.value)
   }
-  const register = () => {
-    User.create({
-      email,
-      password: value
-    })
+  const handleRegister = async () => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password: password })
+      })
+      console.log(res)
+      if (res.status === 200) {
+        router.push('/auth/login')
+      } else {
+        throw new Error('User registeration failed')
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
+
   return (
     <div className="w-full h-full flex justify-center items-center">
       <div className="form-wrapper flex flex-col justify-center items-center max-w-60">
@@ -47,14 +60,14 @@ export default function RegisterForm() {
             inputName: 'password',
             inputType: 'password',
             inputPlaceholder: '●●●●●●●●',
-            value: value,
+            value: password,
             onChange(event) {
-              handleChange(event, setValue)
+              handleChange(event, setPassword)
             }
           }}
         />
         <button
-          onClick={() => register}
+          onClick={handleRegister}
           className="w-full px-6 py-3"
         >
           Register
