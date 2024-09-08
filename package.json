@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.5",
+    "@heroicons/react": "^2.1.5",
     "@types/jsonwebtoken": "^9.0.6",
     "bcrypt": "^5.1.1",
     "client-only": "^0.0.1",
