@@ -1,12 +1,14 @@
 'use client'
 import NavBar from '@/components/NavBar'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import DashBoard from './dashboard/page'
 export default function Home() {
   const { data: session } = useSession()
   if (session) {
     return (
       <>
         <NavBar />
+        <DashBoard />
       </>
     )
   }
