@@ -9,19 +9,20 @@ import {
 } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
-
-const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Team', href: '#', current: false },
-  { name: 'Projects', href: '#', current: false },
-  { name: 'Calendar', href: '#', current: false }
-]
-
-function classNames(classes: string[]) {
+import userIcon from '../../public/user.svg'
+import jsecretLogo from '../../public/JSecret.svg'
+import {
+  navigationList,
+  profileDropdownList
+} from '../../public/statics/navBarNavigationLists'
+import { useSession } from 'next-auth/react'
+function classNames(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function NavBar() {
+  const { data: session } = useSession()
+
   return (
     <Disclosure
       as="nav"
@@ -47,25 +48,25 @@ export default function NavBar() {
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex flex-shrink-0 items-center">
               <Image
+                width={32}
+                height={32}
                 alt="Your Company"
-                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                src={jsecretLogo}
                 className="h-8 w-auto"
               />
             </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
-                {navigation.map((item) => (
+                {navigationList.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
                     aria-current={item.current ? 'page' : undefined}
                     className={classNames(
                       item.current
-                        ? ['bg-gray-900 text-white']
-                        : [
-                            'text-gray-300 hover:bg-gray-700 hover:text-white',
-                            'rounded-md px-3 py-2 text-sm font-medium'
-                          ]
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                      'rounded-md px-3 py-2 text-sm font-medium'
                     )}
                   >
                     {item.name}
@@ -97,9 +98,11 @@ export default function NavBar() {
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
                   <Image
+                    width={32}
+                    height={32}
                     alt=""
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    className="h-8 w-8 rounded-full"
+                    src={session?.user?.image ? session.user?.image : userIcon}
+                    className="h-8 w-8 rounded-full bg-white"
                   />
                 </MenuButton>
               </div>
@@ -107,39 +110,46 @@ export default function NavBar() {
                 transition
                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
               >
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                  >
-                    Your Profile
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                  >
-                    Settings
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                  >
-                    Sign out
-                  </a>
-                </MenuItem>
+                {profileDropdownList.map((item) => {
+                  if (item.type === 'link') {
+                    return (
+                      <MenuItem key={item.label}>
+                        <a
+                          onClick={item.functionality}
+                          href={item.href}
+                          className="flex justify-start px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 w-full"
+                        >
+                          {item.label}
+                        </a>
+                      </MenuItem>
+                    )
+                  } else {
+                    return (
+                      <MenuItem key={item.label}>
+                        <button
+                          onClick={item.functionality}
+                          className="flex justify-start px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 w-full"
+                        >
+                          {item.label}
+                        </button>
+                      </MenuItem>
+                    )
+                  }
+                })}
               </MenuItems>
             </Menu>
+            <div>
+              {session?.user?.name === 'guest' || !session?.user?.name
+                ? 'Guest'
+                : session?.user?.name}
+            </div>
           </div>
         </div>
       </div>
 
       <DisclosurePanel className="sm:hidden">
         <div className="space-y-1 px-2 pb-3 pt-2">
-          {navigation.map((item) => (
+          {navigationList.map((item) => (
             <DisclosureButton
               key={item.name}
               as="a"
@@ -147,11 +157,9 @@ export default function NavBar() {
               aria-current={item.current ? 'page' : undefined}
               className={classNames(
                 item.current
-                  ? ['bg-gray-900 text-white']
-                  : [
-                      'text-gray-300 hover:bg-gray-700 hover:text-white',
-                      'block rounded-md px-3 py-2 text-base font-medium'
-                    ]
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                'block rounded-md px-3 py-2 text-base font-medium'
               )}
             >
               {item.name}
