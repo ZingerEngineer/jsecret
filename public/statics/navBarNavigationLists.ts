@@ -19,9 +19,9 @@ const doSignOut = () => {
 }
 
 const navigationList: navigationItem[] = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Team', href: '#', current: false },
-  { name: 'Projects', href: '#', current: false }
+  { name: 'Dashboard', href: '/', current: true },
+  { name: 'Team', href: '/user/team', current: false },
+  { name: 'Projects', href: '/user/project', current: false }
 ]
 
 const profileDropdownList: profileDropDownItem[] = [
