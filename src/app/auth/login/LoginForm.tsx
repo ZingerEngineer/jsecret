@@ -4,6 +4,7 @@ import InputComponent from '@/components/InputComponent'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
 export default function LoginForm() {
   const router = useRouter()
   const { data: session } = useSession()
@@ -25,11 +26,18 @@ export default function LoginForm() {
     )
   }
   const doLogin = async () => {
-    console.log(email, value)
-    const res = await signIn('credentials', { email: email, password: value })
-    if (res) {
-      console.log(res)
-      router.push('/')
+    try {
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password: value
+      })
+      if (res?.ok) {
+        toast.success('Login success')
+        router.push('/')
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
   return (
