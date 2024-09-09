@@ -81,6 +81,6 @@ export const userSchema = new Schema({
 })
 
 const User =
-  (mongoose.models.User as Model<TUser>) || model<TUser>('User', userSchema)
+  (mongoose?.models?.User as Model<TUser>) || model<TUser>('User', userSchema)
 
 export default User
