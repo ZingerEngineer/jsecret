@@ -1,9 +1,11 @@
-import mongoose from 'mongoose'
+import mongoose, { Model, model } from 'mongoose'
 import { ObjectId } from 'mongodb'
 const { Schema } = mongoose
 
 export type TSecret = {
   _id: ObjectId
+  projectId: string | null
+  teamId: string | null
   userId: string
   name: string
   value: string
@@ -18,6 +20,14 @@ export const secretSchema = new Schema({
   userId: {
     type: String,
     required: true
+  },
+  projectId: {
+    type: String,
+    required: false
+  },
+  teamId: {
+    type: String,
+    required: false
   },
   name: {
     type: String,
@@ -52,4 +62,8 @@ export const secretSchema = new Schema({
     default: Date.now
   }
 })
-export default mongoose.model('Secret', secretSchema)
+const Secret =
+  (mongoose?.models?.Secret as Model<TSecret>) ||
+  model<TSecret>('Secret', secretSchema)
+
+export default Secret
