@@ -6,8 +6,6 @@ import { getServerSession } from 'next-auth'
 import { nextAuthOptions } from './api/auth/[...nextauth]/route'
 import { dbConnect } from '@/services/db'
 import ToastProvider from '@/components/ToastComponent'
-import { cookies } from 'next/headers'
-const cookkiesStore = cookies()
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -20,8 +18,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  console.log(cookkiesStore.get('Authorization'))
-  console.log(cookkiesStore.get('EmailVerification'))
   await dbConnect()
   const session = await getServerSession(nextAuthOptions)
   return (
