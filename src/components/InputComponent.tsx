@@ -11,7 +11,7 @@ type Props = {
 
 export default function InputComponent({ props }: { props: Props }) {
   return (
-    <div>
+    <div className="w-full">
       <label
         htmlFor={props.labelHtmlFor}
         className="block text-sm font-medium leading-6 text-white"

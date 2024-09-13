@@ -7,7 +7,8 @@ export type TProject = {
   _id: ObjectId
   name: string
   description: string
-  owners: string[]
+  ownerUserId: string[]
+  participantsIds: string[]
   projectLogo: string
   softDeleted: boolean
   softDeletedAt: Date
@@ -25,9 +26,13 @@ export const projectSchema = new Schema({
     type: String,
     required: true
   },
-  owners: {
-    type: [String],
+  ownerUserId: {
+    type: String,
     required: true
+  },
+  participantsIds: {
+    type: [String],
+    default: []
   },
   projectLogo: {
     type: String,

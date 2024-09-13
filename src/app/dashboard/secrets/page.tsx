@@ -1,66 +1,65 @@
 'use client'
 import DropDown from '@/components/DropDownComponent'
 import InputComponent from '@/components/InputComponent'
-import Secret from '@/services/db/schemas/secret.schema'
-import { useRouter } from 'next/navigation'
-import { ChangeEvent, useState } from 'react'
+import { useState } from 'react'
+import { TProject } from '@/services/db/schemas/project.schema'
+import { TTeam } from '@/services/db/schemas/team.schema'
 import { useSession } from 'next-auth/react'
-import User from '@/services/db/schemas/user.schema'
-import Project from '@/services/db/schemas/project.schema'
-import Team from '@/services/db/schemas/team.schema'
-const SecretCreatorSection = () => {
+import { toast } from 'react-toastify'
+import { BoltIcon } from '@heroicons/react/24/solid'
+type SecretCreatorSectionProps = {
+  projectsArray: TProject[]
+  teamsArray: TTeam[]
+}
+const SecretCreatorSection = ({
+  projectsArray,
+  teamsArray
+}: SecretCreatorSectionProps) => {
   const { data: session } = useSession()
-
-  const createSecret = async () => {
-    const user = await User.findOne({ email: session?.user?.email })
-    const project = await Project.findOne({ name: selectedProject })
-    const team = await Team.findOne({ name: selectedTeam })
-    const newSecret = await Secret.create({
-      name: secretName,
-      value: secretValue,
-      userId: user?._id,
-      projectId: project?._id,
-      teamId: team?._id
-    })
-    await newSecret.save()
+  const createSecret = async (
+    secretName: string,
+    secretValue: string,
+    selectedProject: string,
+    selectedTeam: string
+  ) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/secrets/${session?.user.id}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            secretName,
+            secretValue,
+            selectedProject,
+            selectedTeam
+          })
+        }
+      )
+      if (res.ok) {
+        toast('Secret created successfully!', {
+          type: 'success'
+        })
+      }
+    } catch (error) {
+      toast("Secret couldn't be created!", {
+        type: 'error'
+      })
+    }
   }
 
-  const dropDownItemsList = [
-    {
-      label: 'Roaming'
-    },
-    {
-      label: 'Project 1'
-    },
-    {
-      label: 'Project 2'
-    },
-    {
-      label: 'Project 3'
-    }
-  ]
-  const dropDownTeamsList = [
-    {
-      label: 'Roaming'
-    },
-    {
-      label: 'Team 1'
-    },
-    {
-      label: 'Team 2'
-    },
-    {
-      label: 'Team 3'
-    }
-  ]
-  const router = useRouter()
   const [secretName, setSecretName] = useState('')
   const [secretValue, setSecretValue] = useState('')
   const [selectedProject, setSelectedProject] = useState('Roaming')
   const [selectedTeam, setSelectedTeam] = useState('Roaming')
   return (
     <div className="recent-projects-wrapper flex flex-col gap-3 items-start bg-orange-500/20 border-2 border-orange-500 rounded-md p-5">
-      <h1 className="secret-creator-title text-xl font-bold">
+      <h1 className="secret-creator-title text-xl font-bold flex flex-row items-center gap-2">
+        <span>
+          <BoltIcon className="w-6 h-6" />
+        </span>
         Secret on the fly!
       </h1>
       <div className="secret-repo-secetion w-full my-4">
@@ -69,17 +68,17 @@ const SecretCreatorSection = () => {
             Project:
           </div>
           <DropDown
-            onSelect={(item) => setSelectedProject(item)}
-            props={{ dropDownItemsList }}
+            itemsList={projectsArray}
+            onSelect={(project: string) => setSelectedProject(project)}
           />
           <div className="secret-repo-title text-lg font-semibold">Team:</div>
           <DropDown
-            onSelect={(team) => setSelectedTeam(team)}
-            props={{ dropDownItemsList: dropDownTeamsList }}
+            itemsList={teamsArray}
+            onSelect={(team: string) => setSelectedTeam(team)}
           />
         </div>
       </div>
-      <div className="secret-inputs-wrapper flex flex-row gap-2">
+      <div className="secret-inputs-wrapper flex flex-row gap-2 w-full">
         <InputComponent
           props={{
             labelHtmlFor: 'secret-name',
@@ -109,16 +108,14 @@ const SecretCreatorSection = () => {
           }}
         />
       </div>
-      <div className="operations-wrapper">
-        <button
-          className="create-secret-button bg-orange-500/50 p-2 rounded-md cursor-pointer border-orange-500 border-2 hover:bg-orange-500/70 duration-150"
-          onClick={() => {
-            createSecret()
-          }}
-        >
-          Create Secret
-        </button>
-      </div>
+      <button
+        className="create-secret-button bg-orange-500/50 p-2 rounded-md cursor-pointer border-orange-500 border-2 hover:bg-orange-500/70 duration-150"
+        onClick={() =>
+          createSecret(secretName, secretValue, selectedProject, selectedTeam)
+        }
+      >
+        Create Secret
+      </button>
     </div>
   )
 }
