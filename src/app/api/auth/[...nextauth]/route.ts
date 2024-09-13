@@ -1,14 +1,18 @@
-import NextAuth from 'next-auth'
+import NextAuth, { Account, DefaultUser, Profile, Session } from 'next-auth'
 import Github from 'next-auth/providers/github'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import User from '../../../../services/db/schemas/user.schema'
+import User, { TUser } from '../../../../services/db/schemas/user.schema'
 import { compare } from 'bcrypt'
 import { User as NextAuthUser } from 'next-auth'
-
+import { JWT } from 'next-auth/jwt'
+import { AdapterUser } from 'next-auth/adapters'
 interface ISafeUser extends NextAuthUser {
   id: string
   username: string
   email: string
+  role: number
+  name: string
+  image: string
   profilePicture: string
   emailVerified: boolean
   emailVerifiedAt: Date
@@ -69,7 +73,10 @@ export const nextAuthOptions = {
           id: user._id.toString(),
           username: user.username,
           email: user.email,
+          role: user.role,
+          name: user.username,
           profilePicture: user.profilePicture,
+          image: user.profilePicture,
           emailVerified: user.emailVerified,
           emailVerifiedAt: user.emailVerifiedAt,
           softDeleted: user.softDeleted,
@@ -88,6 +95,38 @@ export const nextAuthOptions = {
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string
     })
   ],
+  callbacks: {
+    session(params: { session: Session; token: JWT; user: AdapterUser }) {
+      const { session, token, user } = params
+      session.user.email = token.email!
+      session.user.name = token.name!
+      session.user.image = token.image!
+      session.user.id = token.id!
+      session.user.role = token.role!
+      return session
+    },
+    jwt(params: {
+      token: JWT
+      user: NextAuthUser | AdapterUser
+      account: Account | null
+      profile?: Profile | undefined
+      trigger?: 'signIn' | 'signUp' | 'update' | undefined
+      isNewUser?: boolean | undefined
+      session?: any
+    }) {
+      const { token, user, account, profile, trigger, isNewUser, session } =
+        params
+      if (user) {
+        token.id = user.id
+        token.role = user.role
+        token.name = user.name
+        token.email = user.email
+        token.image = user.image
+      }
+
+      return token
+    }
+  },
   secret: process.env.JWT_SECRET
 }
 const handler = NextAuth(nextAuthOptions)
